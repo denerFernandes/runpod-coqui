@@ -1,4 +1,4 @@
-FROM runpod/pytorch:2.0.1-py3.10-cuda11.8.0-devel-ubuntu22.04
+FROM runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04
 
 # Definir diretório de trabalho
 WORKDIR /app
@@ -18,8 +18,8 @@ RUN apt-get update && apt-get install -y \
 RUN pip install --upgrade pip
 
 # Forçar remoção do blinker problemático
-RUN pip uninstall -y blinker || true
-RUN python -m pip install --force-reinstall --no-deps blinker
+RUN pip install --break-system-packages pip-autoremove
+RUN pip-autoremove blinker -y || true
 
 # Instalar dependências Python
 COPY requirements.txt .
