@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'docker/**'
+      - './**'
     branches: [ main ]
 
 jobs:
@@ -57,8 +57,8 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-        context: ./docker
-        file: ./docker/Dockerfile
+        context: ./
+        file: ./Dockerfile
         platforms: linux/amd64
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/coqui-tts-xtts-v2:latest
