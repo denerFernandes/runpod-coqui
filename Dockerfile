@@ -1,32 +1,48 @@
-# Dockerfile
-FROM runpod/pytorch:2.0.1-py3.10-cuda11.8.0-devel-ubuntu22.04
+# docker/Dockerfile.optimized
+FROM pytorch/pytorch:2.3.1-cuda11.8-cudnn8-runtime
 
-# Definir diretório de trabalho
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Configurar timezone
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 WORKDIR /app
 
 # Instalar dependências do sistema
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    libsndfile1 \
-    espeak-ng \
-    espeak-ng-data \
-    libespeak-ng1 \
-    git \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ffmpeg \
+        git \
+        ca-certificates \
+        build-essential \
+        curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Atualizar pip
-RUN pip install --upgrade pip
+RUN python -m pip install --upgrade pip
 
-# Instalar dependências Python
-COPY requirements.txt .
-RUN pip install --break-system-packages -r requirements.txt
+# Instalar dependências Python específicas (versões fixas para evitar conflitos)
+RUN pip install coqui-tts==0.27.0
+RUN pip install transformers==4.46.2  
+RUN pip install fastapi==0.116.1
+RUN pip install uvicorn==0.35.0
+RUN pip install python-multipart==0.0.20
+RUN pip install soundfile==0.13.1
+RUN pip install numpy==1.24.3
+RUN pip install scipy==1.10.1
+RUN pip install requests==2.31.0
+RUN pip install pydub==0.25.1
 
-# Copiar código da aplicação
+# Pre-download do modelo (opcional - comentar se quiser baixar no startup)
+RUN echo "y" | python -c "from TTS.api import TTS; TTS('tts_models/multilingual/multi-dataset/xtts_v2', gpu=False)" || true
+
+# Copiar aplicação
 COPY handler.py .
 
-# Pre-download do modelo XTTS v2 (opcional - acelera inicialização)
-RUN python -c "from TTS.api import TTS; TTS('tts_models/multilingual/multi-dataset/xtts_v2', gpu=False)"
 
-# Comando para iniciar
 CMD ["python", "handler.py"]
