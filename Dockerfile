@@ -15,12 +15,12 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Atualizar pip
+# Remover o pip
 RUN pip install --upgrade pip
 
 # Instalar dependências Python
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --break-system-packages -r requirements.txt
 
 # Copiar código da aplicação
 COPY handler.py .
