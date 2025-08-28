@@ -61,7 +61,7 @@ jobs:
         file: ./Dockerfile
         platforms: linux/amd64
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/coqui-tts-xtts-v2:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/runpod-tts:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
         build-args: |
